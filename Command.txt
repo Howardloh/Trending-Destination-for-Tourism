@@ -1,0 +1,63 @@
+##### Import/Export #####
+wsl --import Ubuntu-22.04-lixin C:\Users\lxloh\Documents\wsl\Ubuntu-22.04-lixin C:\Users\lxloh\Documents\wsl\Ubuntu-22.04.tar
+wsl --export Ubuntu-22.04-lixin C:\Users\lxloh\Documents\wsl\Ubuntu-22.04.tar
+
+###### Start #####
+wsl -d Ubuntu-22.04-lixin
+su - hdlmf (77777889)
+service ssh status
+sudo service ssh start
+cd ~/hadoop3
+bin/hdfs namenode -format
+sbin/start-dfs.sh
+hdfs dfs -mkdir /user
+hdfs dfs -mkdir /user/hduser
+sbin/start-yarn.sh
+cd ~/kafka
+bin/kafka-server-stop.sh
+bin/zookeeper-server-stop.sh
+bin/zookeeper-server-start.sh config/zookeeper.properties &
+(Press Enter)
+bin/kafka-server-start.sh config/server.properties &
+(Press Enter)
+cd ~
+$HBASE_HOME/bin/start-hbase.sh
+cd ~
+hbase thrift start -p 9090 &
+(Press Enter)
+sudo systemctl start mongod
+
+
+###### End #####
+cd ~
+$HBASE_HOME/bin/stop-hbase.sh
+cd ~/kafka
+bin/kafka-server-stop.sh
+(Press Enter)
+bin/zookeeper-server-stop.sh
+cd ~/hadoop3
+sbin/stop-yarn.sh
+sbin/stop-dfs.sh
+top
+
+
+###### Open Jupyter Notebook (Close Ctrl+c) #####
+cd ~/sparksql
+jupyter notebook --port=8888 --no-browser
+
+
+###### Streaming #####
+
+$SPARK_HOME/sbin/start-master.sh
+$SPARK_HOME/sbin/start-worker.sh spark://localhost:7077
+cd /home/hdlmf/sparksql/Code
+
+sudo chown -R hdlmf:hdlmf /home/hdlmf/sparksql/Code
+sudo chmod -R u+rw /home/hdlmf/sparksql/Code
+
+spark-submit --master spark://localhost:7077 streaming_sentiment_analysis.py
+
+$SPARK_HOME/sbin/stop-worker.sh
+$SPARK_HOME/sbin/stop-master.sh
+
+http://localhost:4040/
